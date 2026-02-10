@@ -1,44 +1,54 @@
-const fs = require("fs");
-const path = require("path");
-const https = require("https");
-const express = require("express");
+// ===== Import des modules nécessaires =====
+const fs = require("fs");           // Gestion des fichiers (certificats HTTPS)
+const path = require("path");       // Gestion des chemins de fichiers
+const https = require("https");     // Création du serveur HTTPS
+const express = require("express"); // Framework serveur NodeJS
 
-const PORT = 3164;
+// ===== Initialisation de l'application Express =====
 const app = express();
 
-// --------- HTTPS CERT/KEY ---------
-// Si tu utilises d'autres chemins (certs fournis par pedago), change ici.
+// ===== Port attribué pour l'application =====
+const PORT = 3164;
+
+// ===== Chargement des certificats SSL =====
+// HTTPS est obligatoire pour ce projet
 const keyPath = path.join(__dirname, "certs", "key.pem");
 const certPath = path.join(__dirname, "certs", "cert.pem");
 
+// Vérification de la présence des fichiers SSL
 if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
-  console.error("❌ Certificat HTTPS introuvable.");
-  console.error("Attendu :", keyPath, "et", certPath);
-  console.error("=> Génère un certificat (openssl) ou pointe vers les fichiers fournis par pedago.");
+  console.error("Certificats SSL manquants.");
   process.exit(1);
 }
 
+// Options HTTPS
 const httpsOptions = {
   key: fs.readFileSync(keyPath),
   cert: fs.readFileSync(certPath),
 };
 
-// --------- ROUTES ---------
+// ===== Route principale =====
+// Renvoie la page HTML contenant le formulaire de connexion
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.htm"));
 });
 
-// Etape 1 : formulaire GET -> /login, afficher les paramètres dans la console serveur
+// ===== Route /login =====
+// Récupère les données envoyées par le formulaire (méthode GET)
+// et les affiche dans la console du serveur
 app.get("/login", (req, res) => {
-  console.log("===== /login (GET) =====");
-  console.log("mail     :", req.query.mail);
-  console.log("password :", req.query.password);
-  console.log("========================");
+  console.log("===== Tentative de connexion =====");
+  console.log("Email :", req.query.mail);
+  console.log("Mot de passe :", req.query.password);
+  console.log("=================================");
 
-  res.status(200).send("OK (Etape 1) — paramètres reçus côté serveur. Regarde la console.");
+  // Réponse simple pour confirmer la réception
+  res.send("Paramètres reçus par le serveur (voir console).");
 });
 
-// --------- START HTTPS SERVER ---------
+// ===== Lancement du serveur HTTPS =====
 https.createServer(httpsOptions, app).listen(PORT, () => {
-  console.log(`✅ Serveur CERISoNet (HTTPS) lancé : https://pedago.univ-avignon.fr:${PORT}/`);
+  console.log(
+    `Serveur CERISoNet lancé en HTTPS sur https://pedago.univ-avignon.fr:${PORT}/`
+  );
 });
