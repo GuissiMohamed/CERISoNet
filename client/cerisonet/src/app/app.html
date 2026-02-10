@@ -1,0 +1,5 @@
+<div class="banner" *ngIf="(notify.message$ | async) as m">
+  <div *ngIf="m">{{ m }}</div>
+</div>
+
+<router-outlet></router-outlet>

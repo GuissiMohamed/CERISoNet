@@ -1,14 +1,12 @@
 # Node
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
-# Certificats / clés (ne jamais publier)
-certs/
-*.pem
-*.key
-*.crt
+# Angular
+client/cerisonet/node_modules/
+client/cerisonet/dist/
 
-# OS
-.DS_Store
+# Temp
+cookies.txt
+
+# Logs
+*.log
