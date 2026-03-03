@@ -18,6 +18,6 @@ export class AuthService {
   }
 
   logout() {
-    return this.http.post('/api/logout', {}, { withCredentials: true });
-  }
+  return this.http.post('/api/logout', {});
+}
 }

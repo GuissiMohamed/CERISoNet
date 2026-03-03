@@ -1,8 +1,7 @@
-// CERISoNet - Serveur NodeJS (Étape 1 + Étape 2.2 + Étape 2.3 + Angular build)
-// - HTTPS sur le port 3164
-// - Étape 1 accessible sur /etape1 et /etape1/login
-// - API : /api/login, /api/me, /api/logout
-// - Angular (build) servi sur / (SPA)
+// ======================================================
+// CERISoNet - Serveur NodeJS
+// Étape 1 + Étape 2 validées proprement
+// ======================================================
 
 const fs = require("fs");
 const path = require("path");
@@ -18,12 +17,15 @@ const { Pool } = require("pg");
 
 const PORT = 3164;
 
-// ===== HTTPS certificates =====
+// ======================================================
+// HTTPS
+// ======================================================
+
 const keyPath = path.join(__dirname, "certs", "key.pem");
 const certPath = path.join(__dirname, "certs", "cert.pem");
 
 if (!fs.existsSync(keyPath) || !fs.existsSync(certPath)) {
-  console.error("❌ Certificats SSL manquants (certs/key.pem et certs/cert.pem).");
+  console.error("❌ Certificats SSL manquants.");
   process.exit(1);
 }
 
@@ -32,41 +34,52 @@ const httpsOptions = {
   cert: fs.readFileSync(certPath),
 };
 
-// ===== PostgreSQL =====
+// ======================================================
+// PostgreSQL
+// ======================================================
+
 const pgPool = new Pool({
   host: "localhost",
   port: 5432,
   database: "etd",
   user: "uapv2600477",
-  // mdp via ~/.pgpass
+  // mot de passe via ~/.pgpass
 });
 
-// ===== MongoDB sessions =====
+// ======================================================
+// MongoDB (store sessions)
+// ======================================================
+
 const MONGO_URL = "mongodb://localhost:27017/cerisonet_sessions";
 
-// ===== Init Express =====
+// ======================================================
+// Express
+// ======================================================
+
 const app = express();
 app.use(express.json());
 
-// ===== Sessions (avant routes) =====
+// ======================================================
+// Session Middleware
+// ======================================================
+
 let mongoStore;
+
 try {
   if (MongoStoreLib && typeof MongoStoreLib.create === "function") {
     mongoStore = MongoStoreLib.create({
       mongoUrl: MONGO_URL,
       collectionName: "sessions",
     });
-  } else if (typeof MongoStoreLib === "function") {
+  } else {
     const MongoStore = MongoStoreLib(session);
     mongoStore = new MongoStore({
       url: MONGO_URL,
       collection: "sessions",
     });
-  } else {
-    throw new Error("Version de connect-mongo non reconnue");
   }
 } catch (e) {
-  console.error("❌ Erreur init connect-mongo :", e);
+  console.error("❌ Erreur connect-mongo :", e);
   process.exit(1);
 }
 
@@ -78,18 +91,28 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: true, // HTTPS obligatoire
+      secure: true,
       sameSite: "lax",
     },
     store: mongoStore,
   })
 );
 
-// =======================================================
-// ✅ ROUTES NON-ANGULAR (API + étape1) AVANT LE FALLBACK SPA
-// =======================================================
+// ======================================================
+// Middleware Auth
+// ======================================================
 
-// ===== Étape 1 (conservée) =====
+function requireAuth(req, res, next) {
+  if (!req.session.user) {
+    return res.status(401).json({ ok: false, message: "Non authentifié." });
+  }
+  next();
+}
+
+// ======================================================
+// Étape 1
+// ======================================================
+
 app.get("/etape1", (req, res) => {
   res.sendFile(path.join(__dirname, "index.htm"));
 });
@@ -99,57 +122,119 @@ app.get("/etape1/login", (req, res) => {
   console.log("mail     :", req.query.mail);
   console.log("password :", req.query.password);
   console.log("===============================");
-  res.send("OK (Etape 1) — paramètres reçus côté serveur. Regarde la console.");
+  res.send("OK (Etape 1) — paramètres reçus côté serveur.");
 });
 
-// ===== API Login (PostgreSQL + SHA1) =====
+// ======================================================
+// API LOGIN
+// ======================================================
+
 app.post("/api/login", async (req, res) => {
   try {
     const { mail, password } = req.body || {};
+
     if (!mail || !password) {
-      return res.status(400).json({ ok: false, message: "Champs manquants." });
+      return res.status(400).json({
+        ok: false,
+        message: "Champs manquants."
+      });
     }
 
     const sql =
       "SELECT id, mail, pseudo, motpasse FROM fredouil.compte WHERE mail = $1 LIMIT 1";
+
     const result = await pgPool.query(sql, [mail]);
 
     if (result.rows.length === 0) {
-      return res.status(401).json({ ok: false, message: "Identifiants invalides." });
+      return res.status(401).json({
+        ok: false,
+        message: "Identifiants invalides."
+      });
     }
 
     const user = result.rows[0];
-    const sha1 = crypto.createHash("sha1").update(password).digest("hex");
+    const sha1 = crypto.createHash("sha1")
+      .update(password)
+      .digest("hex");
 
     if (user.motpasse !== sha1) {
-      return res.status(401).json({ ok: false, message: "Identifiants invalides." });
+      return res.status(401).json({
+        ok: false,
+        message: "Identifiants invalides."
+      });
     }
 
-    req.session.user = { id: user.id, mail: user.mail, pseudo: user.pseudo };
-    return res.json({ ok: true, user: req.session.user });
+    // ✅ Mise à jour statut_connexion = 1
+    await pgPool.query(
+      "UPDATE fredouil.compte SET statut_connexion = 1 WHERE id = $1",
+      [user.id]
+    );
+
+    req.session.user = {
+      id: user.id,
+      mail: user.mail,
+      pseudo: user.pseudo
+    };
+
+    return res.json({
+      ok: true,
+      user: req.session.user
+    });
+
   } catch (err) {
     console.error("Erreur /api/login :", err);
-    return res.status(500).json({ ok: false, message: "Erreur serveur." });
+    return res.status(500).json({
+      ok: false,
+      message: "Erreur serveur."
+    });
   }
 });
 
-// ===== API session =====
-app.get("/api/me", (req, res) => {
-  if (!req.session.user) return res.status(401).json({ ok: false });
-  return res.json({ ok: true, user: req.session.user });
-});
+// ======================================================
+// API ME
+// ======================================================
 
-app.post("/api/logout", (req, res) => {
-  req.session.destroy((err) => {
-    if (err) return res.status(500).json({ ok: false });
-    res.clearCookie("cerisonet.sid");
-    return res.json({ ok: true });
+app.get("/api/me", requireAuth, (req, res) => {
+  return res.json({
+    ok: true,
+    user: req.session.user
   });
 });
 
-// =======================================================
-// ✅ ANGULAR BUILD (STATIC + FALLBACK SPA) À LA FIN
-// =======================================================
+// ======================================================
+// API LOGOUT
+// ======================================================
+
+app.post("/api/logout", async (req, res) => {
+  try {
+
+    if (req.session.user) {
+      // ✅ Mise à jour statut_connexion = 0
+      await pgPool.query(
+        "UPDATE fredouil.compte SET statut_connexion = 0 WHERE id = $1",
+        [req.session.user.id]
+      );
+    }
+
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ ok: false });
+      }
+
+      res.clearCookie("cerisonet.sid");
+
+      return res.json({ ok: true });
+    });
+
+  } catch (err) {
+    console.error("Erreur logout :", err);
+    return res.status(500).json({ ok: false });
+  }
+});
+
+// ======================================================
+// Angular Build
+// ======================================================
 
 const angularDistPath = path.join(
   __dirname,
@@ -160,19 +245,16 @@ const angularDistPath = path.join(
   "browser"
 );
 
-// Servir les fichiers statiques Angular (JS/CSS/favicon)
 app.use(express.static(angularDistPath));
 
-// Fallback SPA : tout ce qui n'est PAS /api et PAS /etape1 renvoie index.html
 app.get(/^\/(?!api|etape1).*/, (req, res) => {
   res.sendFile(path.join(angularDistPath, "index.html"));
 });
 
-// ===== Lancer HTTPS =====
+// ======================================================
+// Lancer serveur HTTPS
+// ======================================================
+
 https.createServer(httpsOptions, app).listen(PORT, () => {
   console.log(`✅ Serveur CERISoNet HTTPS : https://pedago.univ-avignon.fr:${PORT}/`);
 });
-function requireAuth(req, res, next) {
-  if (!req.session.user) return res.status(401).json({ ok: false });
-  next();
-}

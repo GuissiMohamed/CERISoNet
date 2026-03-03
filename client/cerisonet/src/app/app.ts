@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { NotifyService } from './services/notify';
 
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -12,4 +13,5 @@ import { NotifyService } from './services/notify';
 })
 export class AppComponent {
   constructor(public notify: NotifyService) {}
+  
 }
