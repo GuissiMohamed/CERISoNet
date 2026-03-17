@@ -1,2 +1,156 @@
-<p>wall works!</p>
-<button (click)="logout()">Se déconnecter</button>
+<div class="wall-page">
+
+  <header class="topbar">
+    <div>
+      <h2>Mur CERISoNet</h2>
+      <p *ngIf="user">
+        Connecté en tant que <strong>{{ user.pseudo }}</strong>
+      </p>
+    </div>
+
+    <button type="button" class="logout-btn" (click)="logout()">
+      Se déconnecter
+    </button>
+  </header>
+
+  <section class="panel online-panel">
+    <h3>Internautes connectés ({{ onlineUsers.length }})</h3>
+
+    <div class="online-list" *ngIf="onlineUsers.length > 0; else noOnlineUsers">
+      <span class="online-user" *ngFor="let u of onlineUsers">
+        {{ u.pseudo }}
+      </span>
+    </div>
+
+    <ng-template #noOnlineUsers>
+      <p>Aucun internaute connecté.</p>
+    </ng-template>
+  </section>
+
+  <section class="panel filters-panel">
+    <h3>Tris et filtres</h3>
+
+    <div class="filters-grid">
+      <div>
+        <label for="sort">Tri</label>
+        <select id="sort" [(ngModel)]="sort">
+          <option value="newest">Plus récents</option>
+          <option value="oldest">Plus anciens</option>
+          <option value="likes">Popularité (likes)</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="owner">Propriétaire</label>
+        <select id="owner" [(ngModel)]="owner">
+          <option value="all">Tous</option>
+          <option value="me">Mes posts / partages</option>
+          <option value="others">Tous les autres</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="hashtag">Hashtag</label>
+        <input
+          id="hashtag"
+          type="text"
+          [(ngModel)]="hashtag"
+          placeholder="#angular"
+        />
+      </div>
+    </div>
+
+    <div class="filters-actions">
+      <button type="button" (click)="applyFilters()">Appliquer</button>
+      <button type="button" class="secondary-btn" (click)="clearFilters()">Réinitialiser</button>
+    </div>
+  </section>
+
+  <section class="panel create-panel">
+    <h3>Nouveau post</h3>
+
+    <textarea
+      [(ngModel)]="newPost"
+      placeholder="Écrire un message..."
+      rows="4"
+    ></textarea>
+
+    <div class="actions-row">
+      <button type="button" (click)="addPost()">Publier</button>
+    </div>
+  </section>
+
+  <section class="posts-list">
+    <article class="post-card" *ngFor="let post of posts; trackBy: trackByPost">
+      <div class="post-header">
+        <div>
+          <p class="post-author">
+            <strong>{{ post.pseudo }}</strong>
+            <span *ngIf="isMyPost(post)" class="mine-badge">moi</span>
+          </p>
+          <p class="post-meta">{{ post.date }} à {{ post.hour }}</p>
+        </div>
+      </div>
+
+      <p class="post-body">{{ post.body }}</p>
+
+      <div class="hashtags" *ngIf="post.hashtags?.length">
+        <button
+          type="button"
+          class="tag-btn"
+          *ngFor="let tag of post.hashtags"
+          (click)="filterByHashtag(tag)"
+        >
+          {{ tag }}
+        </button>
+      </div>
+
+      <div class="shared-box" *ngIf="post.sharedPost">
+        <p class="shared-title">Post partagé depuis {{ post.sharedPost.pseudo }}</p>
+        <p><strong>{{ post.sharedPost.pseudo }}</strong></p>
+        <p>{{ post.sharedPost.date }} à {{ post.sharedPost.hour }}</p>
+        <p>{{ post.sharedPost.body }}</p>
+      </div>
+
+      <div class="post-actions">
+        <button type="button" (click)="likePost(post._id)">👍 Like</button>
+        <span class="likes-count">{{ post.likes }} like(s)</span>
+      </div>
+
+      <div class="share-box">
+        <input
+          type="text"
+          [(ngModel)]="shareInputs[post._id]"
+          placeholder="Message de partage (optionnel)"
+        />
+        <button type="button" (click)="sharePost(post._id)">Partager</button>
+      </div>
+
+      <div class="comments-box">
+        <h4>Commentaires ({{ post.comments?.length || 0 }})</h4>
+
+        <div class="comment-item" *ngFor="let c of post.comments">
+          <p>
+            <strong>{{ c.pseudo }}</strong> — {{ c.date }} {{ c.hour }}
+          </p>
+          <p>{{ c.text }}</p>
+        </div>
+
+        <div class="comment-form">
+          <input
+            type="text"
+            [(ngModel)]="commentInputs[post._id]"
+            placeholder="Ajouter un commentaire"
+          />
+          <button type="button" (click)="addComment(post._id)">Commenter</button>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <div class="load-more-row">
+    <button type="button" class="secondary-btn" (click)="loadMore()">
+      Charger plus
+    </button>
+  </div>
+</div>
