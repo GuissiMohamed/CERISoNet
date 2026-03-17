@@ -1,10 +1,9 @@
 // ======================================================
-// Étape 3 - Mur CERISoNet
+// Étape 4 - Gestion du temps réel dans le mur
 // Ce composant gère :
-// - le chargement des posts depuis le back-end
-// - l'affichage du mur
-// - la publication d'un nouveau post
-// - la déconnexion de l'utilisateur
+// - les mises à jour en temps réel (likes, partages)
+// - l'affichage des utilisateurs connectés
+// - les interactions utilisateur sans rechargement
 // ======================================================
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -74,6 +73,8 @@ export class WallComponent implements OnInit, OnDestroy {
         }
       })
     );
+
+    
 
     this.socketSubs.push(
       this.websocket.listen('post-shared').subscribe((data: any) => {
@@ -222,4 +223,8 @@ export class WallComponent implements OnInit, OnDestroy {
   isMyPost(post: any): boolean {
     return this.user && post.createdBy === this.user.id;
   }
+
+  hasLiked(post: any): boolean {
+  return post.likedBy?.includes(this.user.id);
+}
 }

@@ -1,3 +1,10 @@
+// ======================================================
+// Service Angular WebSocket
+// Permet :
+// - de se connecter au serveur Socket.io
+// - d'écouter des événements temps réel
+// - d'émettre des événements (like, partage)
+// ======================================================
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
