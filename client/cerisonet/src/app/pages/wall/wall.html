@@ -17,7 +17,6 @@
     ⚡ CERISoNet fonctionne en temps réel : likes, partages et connexions sont mis à jour instantanément.
   </div>
 
-  <!-- Liste des utilisateurs connectés en temps réel -->
   <section class="panel online-panel">
     <h3>Internautes connectés ({{ onlineUsers.length }})</h3>
 
@@ -32,14 +31,13 @@
     </ng-template>
   </section>
 
-  <!-- Zone de tris et filtres -->
   <section class="panel filters-panel">
     <h3>Tris et filtres</h3>
 
     <div class="filters-grid">
       <div>
         <label for="sort">Tri</label>
-        <select id="sort" [(ngModel)]="sort">
+        <select id="sort" [(ngModel)]="sort" (change)="applyFilters()">
           <option value="newest">Plus récents</option>
           <option value="oldest">Plus anciens</option>
           <option value="likes">Popularité (likes)</option>
@@ -48,7 +46,7 @@
 
       <div>
         <label for="owner">Propriétaire</label>
-        <select id="owner" [(ngModel)]="owner">
+        <select id="owner" [(ngModel)]="owner" (change)="applyFilters()">
           <option value="all">Tous</option>
           <option value="me">Mes posts / partages</option>
           <option value="others">Tous les autres</option>
@@ -58,23 +56,24 @@
       <div>
         <label for="hashtag">Hashtag</label>
         <input
-          id="hashtag"
-          type="text"
-          [(ngModel)]="hashtag"
-          placeholder="#angular"
-        />
+  id="hashtag"
+  type="text"
+  [(ngModel)]="hashtag"
+  placeholder="#angular"
+  (change)="applyFilters()"
+/>
       </div>
     </div>
 
     <div class="filters-actions">
-      <button type="button" (click)="applyFilters()">Appliquer</button>
-      <button type="button" class="secondary-btn" (click)="clearFilters()">
-        Réinitialiser
+      <button type="button" (click)="applyFilters()" [disabled]="isLoading">
+        {{ isLoading ? 'Chargement...' : 'Rechercher hashtag' }}
       </button>
+
+    
     </div>
   </section>
 
-  <!-- Zone de création d'un nouveau post -->
   <section class="panel create-panel">
     <h3>Créer une publication</h3>
 
@@ -85,20 +84,33 @@
     ></textarea>
 
     <div class="actions-row">
-      <button type="button" (click)="addPost()">Publier</button>
+      <button type="button" (click)="addPost()">
+        Publier
+      </button>
     </div>
   </section>
 
-  <!-- Liste des posts -->
-  <section class="posts-list" *ngIf="posts.length > 0; else emptyPosts">
+  <div class="panel empty-state" *ngIf="isLoading && posts.length === 0">
+    Chargement des posts...
+  </div>
+
+  <div class="panel empty-state" *ngIf="!isLoading && posts.length === 0">
+    Aucun post à afficher pour le moment.
+  </div>
+
+  <section class="posts-list" *ngIf="posts.length > 0">
     <article class="post-card" *ngFor="let post of posts; trackBy: trackByPost">
+
       <div class="post-header">
         <div>
           <p class="post-author">
             <strong>{{ post.pseudo }}</strong>
             <span *ngIf="isMyPost(post)" class="mine-badge">moi</span>
           </p>
-          <p class="post-meta">{{ post.date }} à {{ post.hour }}</p>
+
+          <p class="post-meta">
+            {{ post.date }} à {{ post.hour }}
+          </p>
         </div>
       </div>
 
@@ -115,39 +127,55 @@
         </button>
       </div>
 
-      <!-- Post partagé -->
       <div class="shared-box" *ngIf="post.sharedPost">
-        <p class="shared-title">Post partagé depuis {{ post.sharedPost.pseudo }}</p>
-        <p><strong>{{ post.sharedPost.pseudo }}</strong></p>
-        <p>{{ post.sharedPost.date }} à {{ post.sharedPost.hour }}</p>
-        <p>{{ post.sharedPost.body }}</p>
+        <p class="shared-title">
+          Post partagé depuis {{ post.sharedPost.pseudo }}
+        </p>
+
+        <p>
+          <strong>{{ post.sharedPost.pseudo }}</strong>
+        </p>
+
+        <p>
+          {{ post.sharedPost.date }} à {{ post.sharedPost.hour }}
+        </p>
+
+        <p>
+          {{ post.sharedPost.body }}
+        </p>
       </div>
 
-      <!-- Actions du post -->
       <div class="post-actions">
         <button
           type="button"
           [disabled]="hasLiked(post)"
-          (click)="likePost(post._id)">
+          (click)="likePost(post._id)"
+        >
           👍 Like
         </button>
 
-        <span class="likes-count">{{ post.likes }} like(s)</span>
+        <span class="likes-count">
+          {{ getLikesCount(post) }} like(s)
+        </span>
       </div>
 
-      <!-- Zone de partage -->
       <div class="share-box">
         <input
           type="text"
           [(ngModel)]="shareInputs[post._id]"
           placeholder="Message de partage (optionnel)"
+          (keyup.enter)="sharePost(post._id)"
         />
-        <button type="button" (click)="sharePost(post._id)">Partager</button>
+
+        <button type="button" (click)="sharePost(post._id)">
+          Partager
+        </button>
       </div>
 
-      <!-- Commentaires -->
       <div class="comments-box">
-        <h4>Commentaires ({{ post.comments?.length || 0 }})</h4>
+        <h4>
+          Commentaires ({{ post.comments?.length || 0 }})
+        </h4>
 
         <div class="comment-item" *ngFor="let c of post.comments">
           <p>
@@ -161,22 +189,27 @@
             type="text"
             [(ngModel)]="commentInputs[post._id]"
             placeholder="Ajouter un commentaire"
+            (keyup.enter)="addComment(post._id)"
           />
-          <button type="button" (click)="addComment(post._id)">Commenter</button>
+
+          <button type="button" (click)="addComment(post._id)">
+            Commenter
+          </button>
         </div>
       </div>
+
     </article>
   </section>
 
-  <ng-template #emptyPosts>
-    <div class="panel empty-state">
-      Aucun post à afficher pour le moment.
-    </div>
-  </ng-template>
-
-  <div class="load-more-row">
-    <button type="button" class="secondary-btn" (click)="loadMore()">
-      Charger plus
+  <div class="load-more-row" *ngIf="posts.length > 0 && hasMore">
+    <button
+      type="button"
+      class="secondary-btn"
+      (click)="loadMore()"
+      [disabled]="isLoading"
+    >
+      {{ isLoading ? 'Chargement...' : 'Charger plus' }}
     </button>
   </div>
+
 </div>
