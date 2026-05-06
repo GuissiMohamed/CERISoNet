@@ -2,43 +2,73 @@
   display: block;
 }
 
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(180deg, #eef2ff 0%, #f8fafc 100%);
+}
+
 .wall-page {
-  max-width: 960px;
+  max-width: 980px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 24px 16px 40px 16px;
   box-sizing: border-box;
 }
 
 .topbar {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  padding: 20px 24px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(8px);
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+.topbar h2 {
+  margin: 0;
+  font-size: 28px;
+  color: #0f172a;
+}
+
+.topbar p {
+  margin: 6px 0 0 0;
+  color: #475569;
 }
 
 .panel {
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.92);
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 16px;
+  border-radius: 18px;
+  padding: 18px;
   margin-bottom: 18px;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+}
+
+.panel h3 {
+  margin-top: 0;
+  margin-bottom: 14px;
+  color: #0f172a;
 }
 
 .online-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
 }
 
 .online-user {
-  background: #eef6ff;
-  color: #1d4ed8;
-  border: 1px solid #bfdbfe;
-  padding: 6px 10px;
+  background: #ecfeff;
+  color: #155e75;
+  border: 1px solid #a5f3fc;
+  padding: 7px 12px;
   border-radius: 999px;
   font-size: 14px;
+  font-weight: 600;
 }
 
 .filters-grid {
@@ -50,7 +80,8 @@
 .filters-grid label {
   display: block;
   margin-bottom: 6px;
-  font-weight: 600;
+  font-weight: 700;
+  color: #334155;
 }
 
 .filters-grid input,
@@ -59,15 +90,28 @@
 .share-box input,
 .comment-form input {
   width: 100%;
-  padding: 10px;
+  padding: 11px 12px;
   border: 1px solid #cbd5e1;
-  border-radius: 8px;
+  border-radius: 12px;
   box-sizing: border-box;
   font: inherit;
+  background: #f8fafc;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.filters-grid input:focus,
+.filters-grid select:focus,
+.create-panel textarea:focus,
+.share-box input:focus,
+.comment-form input:focus {
+  outline: none;
+  border-color: #6366f1;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
 }
 
 .create-panel textarea {
-  min-height: 110px;
+  min-height: 120px;
   resize: vertical;
 }
 
@@ -87,19 +131,26 @@
 }
 
 .post-card {
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.95);
   border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 18px;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.post-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.1);
 }
 
 .post-header {
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .post-author {
   margin: 0;
+  font-size: 17px;
 }
 
 .post-meta {
@@ -109,7 +160,10 @@
 }
 
 .post-body {
-  margin-top: 12px;
+  margin-top: 14px;
+  margin-bottom: 0;
+  color: #0f172a;
+  line-height: 1.6;
   white-space: pre-wrap;
 }
 
@@ -117,34 +171,37 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin: 12px 0;
+  margin: 14px 0 0 0;
 }
 
 .tag-btn {
-  background: #f8fafc;
-  border: 1px solid #cbd5e1;
-  color: #334155;
+  background: #eef2ff;
+  color: #4338ca;
+  border: 1px solid #c7d2fe;
   border-radius: 999px;
-  padding: 6px 10px;
+  padding: 6px 12px;
   cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .shared-box {
-  margin-top: 14px;
-  padding: 12px;
-  border-left: 4px solid #94a3b8;
+  margin-top: 16px;
+  padding: 14px;
+  border-left: 4px solid #6366f1;
   background: #f8fafc;
-  border-radius: 8px;
+  border-radius: 12px;
 }
 
 .shared-title {
   margin-top: 0;
+  margin-bottom: 10px;
   font-weight: 700;
-  color: #475569;
+  color: #4338ca;
 }
 
 .post-actions {
-  margin-top: 14px;
+  margin-top: 16px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -152,62 +209,100 @@
 }
 
 .likes-count {
-  color: #475569;
-  font-weight: 600;
+  color: #dc2626;
+  font-weight: 700;
 }
 
 .share-box,
 .comment-form {
-  margin-top: 14px;
+  margin-top: 16px;
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 10px;
 }
 
 .comments-box {
-  margin-top: 16px;
-  padding-top: 12px;
+  margin-top: 18px;
+  padding-top: 14px;
   border-top: 1px solid #e2e8f0;
+}
+
+.comments-box h4 {
+  margin-top: 0;
+  color: #0f172a;
 }
 
 .comment-item {
   background: #f8fafc;
-  border-radius: 8px;
-  padding: 10px;
-  margin-bottom: 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.comment-item p {
+  margin: 4px 0;
 }
 
 button {
-  padding: 10px 14px;
+  padding: 10px 16px;
   border: none;
-  border-radius: 8px;
-  background: #2563eb;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
   color: white;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 700;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  box-shadow: 0 8px 18px rgba(99, 102, 241, 0.22);
 }
 
 button:hover {
-  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .secondary-btn {
-  background: #64748b;
+  background: linear-gradient(135deg, #64748b, #475569);
+  box-shadow: 0 8px 18px rgba(71, 85, 105, 0.18);
 }
 
 .logout-btn {
-  background: #dc2626;
+  background: linear-gradient(135deg, #dc2626, #ef4444);
+  box-shadow: 0 8px 18px rgba(239, 68, 68, 0.2);
 }
 
 .mine-badge {
   display: inline-block;
   margin-left: 8px;
-  padding: 3px 8px;
+  padding: 4px 8px;
   border-radius: 999px;
   background: #dcfce7;
   color: #166534;
   font-size: 12px;
+  font-weight: 700;
   vertical-align: middle;
+}
+
+.notification-hint {
+  margin-bottom: 18px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: #ede9fe;
+  color: #5b21b6;
+  border: 1px solid #ddd6fe;
+  font-weight: 600;
+}
+
+.empty-state {
+  text-align: center;
+  color: #64748b;
+  padding: 24px 0;
 }
 
 @media (max-width: 768px) {
@@ -223,5 +318,13 @@ button:hover {
   .share-box,
   .comment-form {
     grid-template-columns: 1fr;
+  }
+
+  .wall-page {
+    padding: 16px 12px 30px 12px;
+  }
+
+  .topbar h2 {
+    font-size: 24px;
   }
 }

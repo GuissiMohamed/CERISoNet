@@ -13,6 +13,11 @@
     </button>
   </header>
 
+  <div class="notification-hint">
+    ⚡ CERISoNet fonctionne en temps réel : likes, partages et connexions sont mis à jour instantanément.
+  </div>
+
+  <!-- Liste des utilisateurs connectés en temps réel -->
   <section class="panel online-panel">
     <h3>Internautes connectés ({{ onlineUsers.length }})</h3>
 
@@ -27,6 +32,7 @@
     </ng-template>
   </section>
 
+  <!-- Zone de tris et filtres -->
   <section class="panel filters-panel">
     <h3>Tris et filtres</h3>
 
@@ -62,12 +68,15 @@
 
     <div class="filters-actions">
       <button type="button" (click)="applyFilters()">Appliquer</button>
-      <button type="button" class="secondary-btn" (click)="clearFilters()">Réinitialiser</button>
+      <button type="button" class="secondary-btn" (click)="clearFilters()">
+        Réinitialiser
+      </button>
     </div>
   </section>
 
+  <!-- Zone de création d'un nouveau post -->
   <section class="panel create-panel">
-    <h3>Nouveau post</h3>
+    <h3>Créer une publication</h3>
 
     <textarea
       [(ngModel)]="newPost"
@@ -80,7 +89,8 @@
     </div>
   </section>
 
-  <section class="posts-list">
+  <!-- Liste des posts -->
+  <section class="posts-list" *ngIf="posts.length > 0; else emptyPosts">
     <article class="post-card" *ngFor="let post of posts; trackBy: trackByPost">
       <div class="post-header">
         <div>
@@ -105,6 +115,7 @@
         </button>
       </div>
 
+      <!-- Post partagé -->
       <div class="shared-box" *ngIf="post.sharedPost">
         <p class="shared-title">Post partagé depuis {{ post.sharedPost.pseudo }}</p>
         <p><strong>{{ post.sharedPost.pseudo }}</strong></p>
@@ -112,15 +123,19 @@
         <p>{{ post.sharedPost.body }}</p>
       </div>
 
+      <!-- Actions du post -->
       <div class="post-actions">
-<button
-  type="button"
-  [disabled]="hasLiked(post)"
-  (click)="likePost(post._id)">
-  👍 Like
-</button>        <span class="likes-count">{{ post.likes }} like(s)</span>
+        <button
+          type="button"
+          [disabled]="hasLiked(post)"
+          (click)="likePost(post._id)">
+          👍 Like
+        </button>
+
+        <span class="likes-count">{{ post.likes }} like(s)</span>
       </div>
 
+      <!-- Zone de partage -->
       <div class="share-box">
         <input
           type="text"
@@ -130,6 +145,7 @@
         <button type="button" (click)="sharePost(post._id)">Partager</button>
       </div>
 
+      <!-- Commentaires -->
       <div class="comments-box">
         <h4>Commentaires ({{ post.comments?.length || 0 }})</h4>
 
@@ -151,6 +167,12 @@
       </div>
     </article>
   </section>
+
+  <ng-template #emptyPosts>
+    <div class="panel empty-state">
+      Aucun post à afficher pour le moment.
+    </div>
+  </ng-template>
 
   <div class="load-more-row">
     <button type="button" class="secondary-btn" (click)="loadMore()">
