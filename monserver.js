@@ -367,7 +367,7 @@ app.get("/api/posts", requireAuth, async (req, res) => {
 
 app.post("/api/posts", requireAuth, async (req, res) => {
   try {
-    const { body } = req.body || {};
+    const { body, imageUrl, imageTitle } = req.body || {};
 
     if (!body || body.trim() === "") {
       return res.status(400).json({ ok: false, message: "Message vide" });
@@ -375,12 +375,22 @@ app.post("/api/posts", requireAuth, async (req, res) => {
 
     const now = new Date();
 
+    const cleanImageUrl = imageUrl ? imageUrl.trim() : "";
+    const cleanImageTitle = imageTitle ? imageTitle.trim() : "";
+
+    const image = cleanImageUrl
+      ? {
+          url: cleanImageUrl,
+          title: cleanImageTitle || "Image du post",
+        }
+      : null;
+
     const newPost = {
       date: formatDateFR(now),
       hour: formatHourFR(now),
       body: body.trim(),
       createdBy: req.session.user.id,
-      image: null,
+      image,
       likes: 0,
       likedBy: [],
       hashtags: extractHashtags(body),

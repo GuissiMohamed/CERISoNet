@@ -56,12 +56,12 @@
       <div>
         <label for="hashtag">Hashtag</label>
         <input
-  id="hashtag"
-  type="text"
-  [(ngModel)]="hashtag"
-  placeholder="#angular"
-  (change)="applyFilters()"
-/>
+          id="hashtag"
+          type="text"
+          [(ngModel)]="hashtag"
+          placeholder="#angular"
+          (change)="applyFilters()"
+        />
       </div>
     </div>
 
@@ -69,8 +69,6 @@
       <button type="button" (click)="applyFilters()" [disabled]="isLoading">
         {{ isLoading ? 'Chargement...' : 'Rechercher hashtag' }}
       </button>
-
-    
     </div>
   </section>
 
@@ -82,6 +80,18 @@
       placeholder="Écrire un message..."
       rows="4"
     ></textarea>
+
+    <input
+      type="text"
+      [(ngModel)]="newImageUrl"
+      placeholder="URL de l'image optionnelle"
+    />
+
+    <input
+      type="text"
+      [(ngModel)]="newImageTitle"
+      placeholder="Titre de l'image optionnelle"
+    />
 
     <div class="actions-row">
       <button type="button" (click)="addPost()">
@@ -116,6 +126,16 @@
 
       <p class="post-body">{{ post.body }}</p>
 
+      <div class="post-image" *ngIf="getImageUrl(post)">
+        <img
+          [src]="getImageUrl(post)"
+          [alt]="getImageTitle(post)"
+        />
+        <p class="image-title" *ngIf="getImageTitle(post)">
+          {{ getImageTitle(post) }}
+        </p>
+      </div>
+
       <div class="hashtags" *ngIf="post.hashtags?.length">
         <button
           type="button"
@@ -143,6 +163,16 @@
         <p>
           {{ post.sharedPost.body }}
         </p>
+
+        <div class="post-image" *ngIf="getImageUrl(post.sharedPost)">
+          <img
+            [src]="getImageUrl(post.sharedPost)"
+            [alt]="getImageTitle(post.sharedPost)"
+          />
+          <p class="image-title" *ngIf="getImageTitle(post.sharedPost)">
+            {{ getImageTitle(post.sharedPost) }}
+          </p>
+        </div>
       </div>
 
       <div class="post-actions">

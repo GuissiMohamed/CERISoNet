@@ -42,10 +42,14 @@ export class AuthService {
     });
   }
 
-  createPost(body: string) {
+  createPost(body: string, imageUrl: string = '', imageTitle: string = '') {
     return this.http.post(
       '/api/posts',
-      { body },
+      {
+        body,
+        imageUrl,
+        imageTitle
+      },
       { withCredentials: true }
     );
   }

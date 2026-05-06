@@ -25,6 +25,8 @@ export class WallComponent implements OnInit, OnDestroy {
   onlineUsers: any[] = [];
 
   newPost = '';
+  newImageUrl = '';
+  newImageTitle = '';
 
   sort = 'newest';
   owner = 'all';
@@ -189,12 +191,17 @@ export class WallComponent implements OnInit, OnDestroy {
 
   addPost(): void {
     const body = this.newPost.trim();
+    const imageUrl = this.newImageUrl.trim();
+    const imageTitle = this.newImageTitle.trim();
 
     if (!body) return;
 
-    this.auth.createPost(body).subscribe({
+    this.auth.createPost(body, imageUrl, imageTitle).subscribe({
       next: () => {
         this.newPost = '';
+        this.newImageUrl = '';
+        this.newImageTitle = '';
+
         this.loadPosts(true);
         this.notify.show('success', 'Post publié ✅');
       },
@@ -297,5 +304,33 @@ export class WallComponent implements OnInit, OnDestroy {
     }
 
     return 0;
+  }
+
+  getImageUrl(post: any): string {
+    if (!post) return '';
+
+    if (post.image?.url) {
+      return post.image.url;
+    }
+
+    if (post.images?.url) {
+      return post.images.url;
+    }
+
+    return '';
+  }
+
+  getImageTitle(post: any): string {
+    if (!post) return '';
+
+    if (post.image?.title) {
+      return post.image.title;
+    }
+
+    if (post.images?.title) {
+      return post.images.title;
+    }
+
+    return 'Image du post';
   }
 }
